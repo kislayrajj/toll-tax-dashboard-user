@@ -1,17 +1,19 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
+import { useQueryClient } from '@tanstack/react-query';
 import { DataCard, LoadingSpinner, ErrorMessage, EmptyState } from '../components/DataDisplay';
 import UserLayout from '../components/UserLayout';
 
 const UserDashboard = () => {
   const { vehicleNumber } = useParams();
+  const queryClient = useQueryClient();
 
   // 1. Fetch vehicle data by plate number
   const { data: vehicle, isLoading: loadingVehicle, error: vehicleError } = useFetch(`/vehicles/plate/${vehicleNumber}`);
 
-  // 2. Fetch transactions specific to this vehicle
-  const { data: transactions, isLoading: loadingTx, error: txError } = useFetch(vehicle ? `/transactions/vehicle/${vehicle._id}` : null);
+  // 2. Fetch all transactions (filter client-side for this vehicle)
+  const { data: allTransactions, isLoading: loadingTx, error: txError } = useFetch('/transactions');
 
    if (loadingVehicle || loadingTx) {
      return <UserLayout><LoadingSpinner message="Loading dashboard data..." /></UserLayout>;
@@ -27,6 +29,21 @@ const UserDashboard = () => {
      );
    }
 
+   // Filter transactions for this vehicle
+   const transactions = allTransactions?.filter(tx => {
+     const txVehicleId = tx.vehicleId?._id || tx.vehicleId;
+     return txVehicleId === vehicle._id || txVehicleId === vehicle._id.toString();
+   }) || [];
+
+   // Debug logging
+    console.log('Vehicle data:', vehicle);
+    console.log('All transactions:', allTransactions);
+    console.log('Filtered transactions:', transactions);
+ 
+    const handleRefresh = () => {
+      queryClient.invalidateQueries();
+    };
+
   // Device info and stats
   const iotDevice = vehicle.iotDevice;
   const deviceBalance = iotDevice?.balance ?? 0;
@@ -36,7 +53,19 @@ const UserDashboard = () => {
   return (
     <UserLayout>
       <div className="space-y-6">
-        <h1 className="text-3xl sm:text-4xl font-bold text-gray-800">Dashboard</h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-800">Dashboard</h1>
+          <button
+            onClick={handleRefresh}
+            className="btn btn-outline"
+            title="Refresh data"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Refresh
+          </button>
+        </div>
 
         {/* Vehicle Information */}
         <DataCard title="Vehicle Information">
@@ -55,7 +84,11 @@ const UserDashboard = () => {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Home Town:</span>
-              <span className="font-medium">{vehicle.homeTown ? `${vehicle.homeTown.coordinates[1]}, ${vehicle.homeTown.coordinates[0]}` : 'N/A'}</span>
+              <span className="font-medium">
+                {vehicle.homeTown && vehicle.homeTown.coordinates && vehicle.homeTown.coordinates.length >= 2
+                  ? `${vehicle.homeTown.coordinates[1]}, ${vehicle.homeTown.coordinates[0]}`
+                  : 'N/A'}
+              </span>
             </div>
           </div>
         </DataCard>

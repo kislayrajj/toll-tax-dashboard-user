@@ -19,5 +19,9 @@ export const useFetch = (endpoint) => {
       }
       return apiService.get(endpoint);
     },
+    staleTime: 0, // Always consider data stale
+    gcTime: 0, // Don't cache data
+    refetchOnWindowFocus: true, // Refetch when window gains focus
+    refetchOnReconnect: true, // Refetch on network reconnect
   });
 };

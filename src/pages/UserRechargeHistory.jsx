@@ -13,11 +13,8 @@ const UserRechargeHistory = () => {
   const [isRecharging, setIsRecharging] = useState(false);
   const [modalError, setModalError] = useState('');
 
-  // Fetch device if assigned
-  const { data: deviceData } = useFetch(vehicleData?.iotDevice ? `/iot/${vehicleData.iotDevice}` : null);
-
-  // Fetch recharge history for the vehicle
-  const { data: rechargeData, isLoading: rechargeLoading, error: rechargeError } = useFetch(vehicleData ? `/recharges/vehicle/${vehicleData._id}` : null);
+  // Use embedded IoT device data from vehicle
+  const deviceData = vehicleData?.iotDevice;
 
   const handleRecharge = async () => {
     if (!deviceData) {
@@ -47,7 +44,7 @@ const UserRechargeHistory = () => {
     }
   };
 
-  if (isLoading || rechargeLoading) {
+  if (isLoading) {
     return (
       <UserLayout>
         <DataCard title="Recharge History">
@@ -57,15 +54,17 @@ const UserRechargeHistory = () => {
     );
   }
 
-  if (error || rechargeError) {
+  if (error) {
     return (
       <UserLayout>
         <DataCard title="Recharge History">
-          <ErrorMessage message={error?.message || rechargeError?.message} onRetry={refetch} />
+          <ErrorMessage message={error.message} onRetry={refetch} />
         </DataCard>
       </UserLayout>
     );
   }
+
+  const rechargeData = []; // Replace with real recharge data from API when available
 
 
   return (
@@ -76,13 +75,13 @@ const UserRechargeHistory = () => {
           <button
             className="btn btn-primary"
             onClick={() => setShowRechargeModal(true)}
-            disabled={!deviceData}
+            disabled={!vehicleData?.iotDevice}
           >
             Recharge Device
           </button>
         }
       >
-        {!deviceData && (
+        {!vehicleData?.iotDevice && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 flex items-start">
             <svg className="h-6 w-6 text-yellow-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>

@@ -13,10 +13,8 @@ const UserDeviceManagement = () => {
   const [isAssigning, setIsAssigning] = useState(false);
   const [assignError, setAssignError] = useState('');
 
-  // Fetch device data if vehicle has an IoT device assigned
-  const { data: deviceData } = useFetch(
-    vehicleData?.iotDevice ? `/iot/${vehicleData.iotDevice}` : null
-  );
+  // Use embedded IoT device data from vehicle
+  const deviceData = vehicleData?.iotDevice;
 
   // Assign IoT device to vehicle
   const handleAssignDevice = async () => {
@@ -44,21 +42,21 @@ const UserDeviceManagement = () => {
   };
 
   // Unassign IoT device
-  const handleUnassignDevice = async () => {
-    if (!deviceData) {
-      alert('No device assigned to this vehicle');
-      return;
-    }
+   const handleUnassignDevice = async () => {
+     if (!vehicleData?.iotDevice) {
+       alert('No device assigned to this vehicle');
+       return;
+     }
 
-    if (window.confirm('Are you sure you want to unassign this device?')) {
-      try {
-        await apiService.delete(`/iot/${deviceData.tagId}`);
-        refetch();
-      } catch (err) {
-        alert(err.message || 'Failed to unassign device');
-      }
-    }
-  };
+     if (window.confirm('Are you sure you want to unassign this device?')) {
+       try {
+         await apiService.delete(`/iot/${vehicleData.iotDevice.tagId}`);
+         refetch();
+       } catch (err) {
+         alert(err.message || 'Failed to unassign device');
+       }
+     }
+   };
 
   if (isLoading) {
     return (
@@ -85,7 +83,7 @@ const UserDeviceManagement = () => {
       <div className="space-y-6">
         {/* Device Info */}
         <DataCard title="Device Information">
-          {deviceData ? (
+          {vehicleData?.iotDevice ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Device Details</h3>
@@ -115,7 +113,7 @@ const UserDeviceManagement = () => {
         </DataCard>
 
         {/* Device Activity */}
-        {deviceData && (
+        {vehicleData?.iotDevice && (
           <DataCard title="Device Activity">
             <div className="space-y-4">
               <div className="flex justify-between">

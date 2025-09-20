@@ -10,8 +10,8 @@ const UserTransactions = () => {
   // Fetch vehicle data to get vehicle ID
   const { data: vehicle, isLoading: vehicleLoading, error: vehicleError } = useFetch(`/vehicles/plate/${vehicleNumber}`);
 
-  // Fetch transactions for the vehicle
-  const { data: transactions, isLoading: transactionsLoading, error: transactionsError } = useFetch(vehicle ? `/transactions/vehicle/${vehicle._id}` : null);
+  // Fetch all transactions (filter client-side for this vehicle)
+  const { data: allTransactions, isLoading: transactionsLoading, error: transactionsError } = useFetch('/transactions');
 
   const isLoading = vehicleLoading || transactionsLoading;
   const error = vehicleError || transactionsError;
@@ -35,6 +35,12 @@ const UserTransactions = () => {
       </UserLayout>
     );
   }
+
+  // Filter transactions for this vehicle
+  const transactions = allTransactions?.filter(tx => {
+    const txVehicleId = tx.vehicleId?._id || tx.vehicleId;
+    return txVehicleId === vehicle._id || txVehicleId === vehicle._id.toString();
+  }) || [];
 
   return (
     <UserLayout>
