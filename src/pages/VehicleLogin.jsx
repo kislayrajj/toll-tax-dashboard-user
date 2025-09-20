@@ -68,15 +68,7 @@ const VehicleLogin = () => {
           </button>
         </form>
 
-        <div className="mt-8 text-center text-gray-600 text-sm sm:text-base">
-          Admin access?{' '}
-          <a
-            href="/admin/vehicles"
-            className="text-indigo-600 hover:text-indigo-800 font-medium transition duration-200"
-          >
-            Login here
-          </a>
-        </div>
+        
       </DataCard>
     </div>
   );
