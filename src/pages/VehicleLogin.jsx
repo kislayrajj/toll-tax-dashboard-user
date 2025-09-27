@@ -66,6 +66,7 @@ const VehicleLogin = () => {
           >
             {loading ? 'Checking...' : 'Access Dashboard'}
           </button>
+          <div className='text-gray-400 text-center'>Try BR09AB199</div>
         </form>
 
         
