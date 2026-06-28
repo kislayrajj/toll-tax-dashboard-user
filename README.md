@@ -113,7 +113,7 @@ npm run dev
 ## Research
 
 **"Smart Toll Tax System Using Bluetooth Low Energy and a Cloud-Based Web Application"**
-— Kislay Raj, Chandigarh University · 500+ hardware trials · 94.3% lane accuracy · Zero duplicate charges
+— Kislay Raj, Chandigarh University · 94.3% lane accuracy · Zero duplicate charges
 
 ---
 
